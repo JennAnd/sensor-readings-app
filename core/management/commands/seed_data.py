@@ -3,17 +3,17 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from core.models import Sensor
-import random
-from datetime import timedelta
-from django.utils import timezone
 from core.models import Reading
+import csv
+from pathlib import Path
+from django.utils.dateparse import parse_datetime
 
 # List of sensors to add for the test user
 SENSORS = [
     ("device-001", "EnviroSense"),
     ("device-002", "ClimaTrack"),
     ("device-003", "AeroMonitor"),
-    ("device-004", "HydroTerm"),
+    ("device-004", "HydroTherm"),
     ("device-005", "EcoStat"),
 ]
 
@@ -37,23 +37,40 @@ class Command(BaseCommand):
                 name=name,
                 defaults={"type": model,}
             )
-        
-        # Get the current time
-        now = timezone.now()
 
-        # Loop through all sensors owned by the user
-        for sensor in Sensor.objects.filter(owner=user):
-            #Create 5 readings per sensor, 1 hour apart
-            for i in range(5): 
-                ts = now - timedelta(hours=i) 
-                # Create a reading with random temperature and humidity
-                Reading.objects.get_or_create(
+        csv_path = Path(__file__).resolve().parent.parent.parent.parent / "sensor_readings_wide.csv"
+
+        # Fail if the file does not exist
+        if not csv_path.exists():
+                self.stderr.write(f"CSV not found: {csv_path}")
+                return
+
+        created_count = 0
+
+        # Open csv and read rows using the header name
+        with csv_path.open(newline="") as f:
+            reader = csv.DictReader(f)  # expects: timestamp, device_id, temperature, humidity
+            for row in reader:
+                device = row["device_id"]  # Match device name to Sensor.name
+
+                try:
+                    sensor = Sensor.objects.get(name=device, owner=user)
+                except Sensor.DoesNotExist:
+                    continue  # skip unknown devices
+
+                ts = parse_datetime(row["timestamp"])
+                if not ts:
+                    continue  # skip bad timestamps
+
+                # Create a Reading linked to the sensor
+                Reading.objects.create(
                     sensor=sensor,
+                    temperature=float(row["temperature"]),
+                    humidity=float(row["humidity"]),
                     timestamp=ts,
-                    defaults={
-                        "temperature": round(random.uniform(15.0, 25.0), 1), # Round to 1 decimal
-                        "humidity": round(random.uniform(35.0, 60.0), 1),
-                    }
                 )
+                created_count += 1
+
+     
         # Print a success message in the terminal when seeding is done
-        self.stdout.write(self.style.SUCCESS("Seed OK! Created Jennifer's test user, 5 sensors and 5 readings per sensor."))
+        self.stdout.write(self.style.SUCCESS(f"Seed complete: {created_count} readings added from CSV"))
