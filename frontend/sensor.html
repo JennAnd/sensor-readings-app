@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!------- View sensor details: filter readings, list them newest first, add a new reading in a graph ------->
   <title>Sensor details</title>
+  <!-- Load Chart.js for temperature/humidity graph -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
   <h1>Sensor details</h1>
@@ -15,6 +19,9 @@
     <input id="to" type="datetime-local" />
     <button type="submit">Filter</button>
   </form>
+
+    <!-- Chart showing temperature and humidity over time -->
+    <canvas id="chart" height="140"></canvas>
 
   <h3>Readings</h3>
   <ul id="list"></ul>
@@ -64,6 +71,43 @@
       return qs.length ? '?' + qs.join('&') : '';
     }
 
+ // Draw chart for temperature and humidity
+function renderChart(readings) {
+  // Destroy only if a real Chart instance exists
+  if (window.chart && typeof window.chart.destroy === 'function') {
+    window.chart.destroy();
+  }
+
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  // X-axis labels and two data series
+  const labels = readings.map(r => new Date(r.timestamp).toLocaleString());
+  const temps  = readings.map(r => Number(r.temperature));
+  const hums   = readings.map(r => Number(r.humidity));
+
+  // Create a new chart
+  window.chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Temperature (°C)', data: temps, yAxisID: 'y1' },
+        { label: 'Humidity (%)',    data: hums,  yAxisID: 'y2' }
+      ]
+    },
+    options: {
+      parsing: false,
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: true } },
+      scales: {
+        y1: { type: 'linear', position: 'left',  title: { display: true, text: '°C' } },
+        y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '%' } }
+      }
+    }
+  });
+}
+
     // Load readings and show them in a list
     async function loadReadings() {
       const token = getToken();
@@ -95,6 +139,9 @@
         li.textContent = `${r.timestamp} — T: ${r.temperature}°C, H: ${r.humidity}%`;
         ul.appendChild(li);
       });
+
+      // Draw chart after loading readings
+      renderChart(data);
     }
 
     // Reload list when user clicks "Filter"
