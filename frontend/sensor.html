@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sensor details</title>
+</head>
+<body>
+  <h1>Sensor details</h1>
+
+  <!-- Filter readings by date and time -->
+  <form id="filterForm">
+    <!-- Start and end time for filtering -->
+    <input id="from" type="datetime-local" />
+    <input id="to" type="datetime-local" />
+    <button type="submit">Filter</button>
+  </form>
+
+  <h3>Readings</h3>
+  <ul id="list"></ul>
+
+  <hr/>
+
+  <!-- Add a new reading (temperature, humidity and timestamp) -->
+  <h3>Add reading</h3>
+  <form id="createForm">
+    <input id="temp" type="number" step="0.1" placeholder="Temperature" required />
+    <input id="hum"  type="number" step="0.1" placeholder="Humidity" required />
+    <input id="ts"   type="datetime-local" required />
+    <button type="submit">Add</button>
+  </form>
+
+  <p><a href="sensors.html">Back to sensors</a></p>
+
+  <script>
+    // Read auth token or redirect if missing
+    function getToken() {
+      const t = localStorage.getItem('token');
+      if (!t) {
+        alert('You must log in first.');
+        location.href = 'login.html';
+        throw new Error('No token');
+      }
+      return t;
+    }
+
+    // Read sensor ID from URL
+    function getSensorId() {
+      const id = new URLSearchParams(location.search).get('id');
+      if (!id) {
+        alert('Missing sensor id in URL');
+        throw new Error('No sensor id');
+      }
+      return id;
+    }
+
+    // Build query string for timestamp filters in ISO 8601 format
+    function buildQuery() {
+      const from = document.getElementById('from').value;
+      const to   = document.getElementById('to').value;
+      const qs = [];
+      if (from) qs.push('timestamp_from=' + new Date(from).toISOString());
+      if (to)   qs.push('timestamp_to='   + new Date(to).toISOString());
+      return qs.length ? '?' + qs.join('&') : '';
+    }
+
+    // Load readings and show them in a list
+    async function loadReadings() {
+      const token = getToken();
+      const sensorId = getSensorId();
+      const qs = buildQuery();
+
+      const res = await fetch(`http://localhost:8000/api/sensors/${sensorId}/readings${qs}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('token');
+        location.href = 'login.html';
+        return;
+      }
+      if (!res.ok) throw new Error('Failed to load readings');
+
+      const data = await res.json();    // expect array sorted by newest first
+      const ul = document.getElementById('list');
+      ul.innerHTML = '';
+      if (!data.length) {
+        ul.innerHTML = '<li>No readings.</li>';
+        return;
+      }
+      // Create list items for each reading
+      data.forEach(r => {
+        const li = document.createElement('li');
+        li.textContent = `${r.timestamp} — T: ${r.temperature}°C, H: ${r.humidity}%`;
+        ul.appendChild(li);
+      });
+    }
+
+    // Reload list when user clicks "Filter"
+    document.getElementById('filterForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try { await loadReadings(); } catch (err) { alert(err.message); }
+    });
+
+    // Create new reading (POST)
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = getToken();
+      const sensorId = getSensorId();
+
+      const temperature = parseFloat(document.getElementById('temp').value);
+      const humidity    = parseFloat(document.getElementById('hum').value);
+      const tsLocal     = document.getElementById('ts').value;
+      // Convert local date/time to ISO 8601
+      const timestamp   = new Date(tsLocal).toISOString(); 
+
+      const res = await fetch(`http://localhost:8000/api/sensors/${sensorId}/readings`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ temperature, humidity, timestamp })
+      });
+
+      if (res.status === 401) {
+        alert('Session expired. Please login again.');
+        localStorage.removeItem('token');
+        location.href = 'login.html';
+        return;
+      }
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Failed to create reading');
+      }
+
+      // Reload list and clear from fields
+      await loadReadings();
+      document.getElementById('temp').value = '';
+      document.getElementById('hum').value = '';
+      document.getElementById('ts').value = '';
+    });
+
+    // Load readings when page opens
+    loadReadings().catch(err => alert(err.message));
+  </script>
+</body>
+</html>
