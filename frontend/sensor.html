@@ -5,50 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!------- View sensor details: filter readings, list them newest first, add a new reading in a graph ------->
     <title>Sensor details</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/sensor.css" />
+
     <!-- Load Chart.js for temperature/humidity graph -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <h1>Sensor details</h1>
+    <div class="container">
+      <header class="page-head">
+        <h1>Sensor details</h1>
+        <a class="link" href="sensors.html">Back to sensors</a>
+      </header>
 
-    <!-- Filter readings by date and time -->
-    <form id="filterForm">
-      <!-- Start and end time for filtering -->
-      <input id="from" type="datetime-local" />
-      <input id="to" type="datetime-local" />
-      <button type="submit">Filter</button>
-    </form>
+      <!-- Filter readings by date and time -->
+      <form id="filterForm" class="row">
+        <!-- Start and end time for filtering -->
+        <input id="from" type="datetime-local" />
+        <input id="to" type="datetime-local" />
+        <button type="submit">Filter</button>
+      </form>
 
-    <!-- Chart showing temperature and humidity over time -->
-    <canvas id="chart" height="140"></canvas>
+      <!-- Chart showing temperature and humidity over time -->
+      <div class="card">
+        <canvas id="chart" height="160"></canvas>
+      </div>
 
-    <h3>Readings</h3>
-    <ul id="list"></ul>
+      <h3>Readings</h3>
+      <ul id="list"></ul>
 
-    <hr />
+      <hr />
 
-    <!-- Add a new reading (temperature, humidity and timestamp) -->
-    <h3>Add reading</h3>
-    <form id="createForm">
-      <input
-        id="temp"
-        type="number"
-        step="0.1"
-        placeholder="Temperature"
-        required
-      />
-      <input
-        id="hum"
-        type="number"
-        step="0.1"
-        placeholder="Humidity"
-        required
-      />
-      <input id="ts" type="datetime-local" required />
-      <button type="submit">Add</button>
-    </form>
-
-    <p><a href="sensors.html">Back to sensors</a></p>
+      <!-- Add a new reading (temperature, humidity and timestamp) -->
+      <h3>Add reading</h3>
+      <form id="createForm" class="row row-3">
+        <input
+          id="temp"
+          type="number"
+          step="0.1"
+          placeholder="Temperature"
+          required
+        />
+        <input
+          id="hum"
+          type="number"
+          step="0.1"
+          placeholder="Humidity"
+          required
+        />
+        <input id="ts" type="datetime-local" required />
+        <button type="submit" class="btn">Add</button>
+      </form>
+    </div>
 
     <script>
       // Read auth token or redirect if missing
