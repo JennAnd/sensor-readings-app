@@ -11,6 +11,7 @@ from typing import Optional
 from ninja.pagination import paginate, PageNumberPagination 
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
+from ninja.responses import Response
 
 
 # Checks if the token belongs to a real user
@@ -36,14 +37,42 @@ def list_sensors(request, q: Optional[str]= None):
         )
     return sensors
 
-# Logged-in user can create a new sensor in the database
+# Logged in user can create a new sensor in the database
 @router.post("/sensors", response=SensorOut, auth=TokenAuth())
 def create_sensor(request, data: SensorCreate):
     sensor = Sensor.objects.create(**data.dict(), owner=request.auth) # Creates a new sensor using the data from the schema
 
     return sensor
 
-# Create router for all reading endpoints
+# Get one sensor owned by user
+def _get_owned_sensor(user, sensor_id: int):
+
+    # Return 404 if not found or not owned by user
+    return get_object_or_404(Sensor, id=sensor_id, owner=user)
+
+# Return a sensor that belongs to the current user
+@router.get("/sensors/{sensor_id}", response=SensorOut, auth=TokenAuth())
+def get_sensor(request, sensor_id: int):
+    sensor = _get_owned_sensor(request.auth, sensor_id)
+    return sensor
+
+# Update a sensor
+@router.put("/sensors/{sensor_id}", response=SensorOut, auth=TokenAuth())
+def update_sensor(request, sensor_id: int, data: SensorCreate):
+    sensor = _get_owned_sensor(request.auth, sensor_id)
+    sensor.name = data.name
+    sensor.type = data.type
+    sensor.save()
+    return sensor 
+
+# Delete a sensor and all related readings
+@router.delete("/sensors/{sensor_id}", auth=TokenAuth())
+def delete_sensor(request, sensor_id: int):
+    sensor = _get_owned_sensor(request.auth, sensor_id)
+    sensor.delete()
+    return Response({}, status=204) 
+
+# Router for all reading endpoints
 readings_router = Router(auth=TokenAuth())
 
 # Get endpoint to list readings for a specific sensor
