@@ -14,6 +14,11 @@
         <h1>Sensors</h1>
         <p><a href="login.html">Log out</a></p>
       </header>
+      <!-- Search sensors by name or type -->
+      <form id="searchForm" class="sensor-form">
+        <input id="q" placeholder="Search by name or type" />
+        <button type="submit">Search</button>
+      </form>
 
       <!-- Create a new sensor form -->
       <form id="createForm" class="sensor-form">
@@ -40,14 +45,27 @@
         return t;
       }
 
+      // Store current search text
+      let searchState = { q: "" };
+      // Build the search part of the UR, example: ?q=temperature
+      function buildQS() {
+        const p = new URLSearchParams();
+        if (searchState.q) p.set("q", searchState.q.trim()); // If user typed something, add it
+        // If something was added return it with ?, otherwise return nothing
+        return p.toString() ? "?" + p.toString() : "";
+      }
+
       // Load all sensors that belong to the logged-in user
       async function loadSensors() {
         const token = getToken();
         try {
           // GET /api/sensors (requires Bearer token)
-          const res = await fetch("http://localhost:8000/api/sensors", {
-            headers: { Authorization: "Bearer " + token },
-          });
+          const res = await fetch(
+            "http://localhost:8000/api/sensors" + buildQS(),
+            {
+              headers: { Authorization: "Bearer " + token },
+            }
+          );
 
           // Handle invalid token
           if (res.status === 401) {
@@ -76,7 +94,8 @@
               li.innerHTML = `
   <span class="name"><a href="sensor.html?id=${s.id}">${s.name}</a></span>
   <span class="sep" aria-hidden="true"></span>
-  <span class="type">${s.type}</span>
+  <span class="type">${s.model ?? s.type ?? ""}</span>
+
 `;
               ul.appendChild(li);
             });
@@ -131,6 +150,12 @@
             alert("Error: " + err.message);
           }
         });
+      // When user clicks Search
+      document.getElementById("searchForm").addEventListener("submit", (e) => {
+        e.preventDefault(); // Stop page from reloading
+        searchState.q = document.getElementById("q").value;
+        loadSensors().catch((err) => alert(err.message));
+      });
 
       // Load sensors automatically when the page opens
       loadSensors();
