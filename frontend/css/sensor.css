@@ -162,6 +162,52 @@ h3 {
   transform: translateY(1px);
 }
 
+/* Pagination styling */
+#rPager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+#rPager button {
+  background-color: #2f4f4f;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#rPager button:hover:not(:disabled) {
+  background-color: #3d6b6b;
+}
+
+#rPager button:disabled {
+  background-color: #d3d3d3;
+  color: #666;
+  cursor: not-allowed;
+}
+
+#rPager button:disabled:hoover {
+  background-color: #d3d3d3;
+  color: #666;
+}
+
+#rPageInfo {
+  font-weight: 600;
+  color: #333;
+  padding: 0 5px;
+}
+
+#rPager[hidden] {
+  display: none;
+}
+
 hr {
   border: 0;
   border-top: 1px solid var(--border);
