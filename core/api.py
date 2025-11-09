@@ -3,7 +3,6 @@ from ninja import Router
 from .models import Sensor, Reading
 from typing import List
 from .schemas import SensorCreate, SensorOut, ReadingCreate, ReadingOut
-# from .auth_bearer import TokenAuth # Import TokenAuth class to protect endpoints
 from ninja.security import HttpBearer
 from rest_framework.authtoken.models import Token
 from django.db.models import Q # Filtering with multiple fields
