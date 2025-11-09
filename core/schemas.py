@@ -14,6 +14,15 @@ class SensorCreate(SensorBase):
 
 # Used when returning sensor data in API responses (GET)
 class SensorOut(SensorBase):
+    """
+    Example:
+        {       
+                 "id": 1,
+                 "name": "device-001",
+                 "type": "EnviroSense",
+                 "created_at": "2025-11-09T21:00:00Z"
+        }
+    """
     id: int
     created_at: datetime
 
@@ -29,4 +38,13 @@ class ReadingCreate(ReadingBase):
 
 # Used when returning readings from the API (GET)
 class ReadingOut(ReadingBase):
+    """
+    Example:
+    {
+                "id": 1,
+                "temperature": 22.1,
+                "humidity": 44.5,
+                "timestamp": "2025-11-09T21:00:00Z"
+    }
+    """
     id: int
