@@ -12,10 +12,10 @@ A fullstack application for managing sensors and their readings.
 
 ## Project structure
 
-```
-backend/        # Django configuration (settings, urls, etc.)
-core/        # Main Django app (models, API, management commands)
-frontend/       # Static HTML, CSS, and JS
+```bash
+backend/               # Django configuration (settings, urls, etc.)
+core/                  # Main Django app (models, API, management commands)
+frontend/              # Static HTML, CSS, and JS
 sensor_readings_wide.csv
 docker-compose.yml
 Makefile
@@ -47,10 +47,17 @@ POSTGRES_PORT=5432
 ### 2. Run locally
 
 ```bash
-docker compose down -v      # optional cleanup
-make up      # build and start containers
-make migrate      # apply migrations
-make seed      # load demo data from CSV
+# Optional cleanup
+docker compose down -v
+
+# Build and start containers
+make up
+
+# Apply migrations
+make migrate
+
+# Load demo data
+make seed
 ```
 
 ---
