@@ -1,26 +1,59 @@
 # Sensor Readings App
 
-A fullstack application for managing sensors and their readings. Create, edit and manage sensor data with filtering and chart-based detail view.
-
-- **Backend:** Django 5 + Django Ninja (TokenAuth, PostgreSQL)
-- **Frontend:** Vanilla HTML, CSS, JavaScript
-- **Database:** PostgreSQL (Dockerized)
-- **Testing:** `pytest`
-- **Seed data:** `sensor_readings_wide.csv`
+A fullstack web application for managing sensors and their readings, with filtering, chart-based visualization, and responsive views for mobile, tablet, and desktop.
 
 ---
 
-## Project structure
+## Features
 
-```bash
-backend/               # Django configuration (settings, urls, etc.)
-core/                  # Main Django app (models, API, management commands)
-frontend/              # Static HTML, CSS, and JS
-sensor_readings_wide.csv
-docker-compose.yml
-Makefile
-README.md
-```
+- Token-based authentication
+- User registration and sign in
+- Protected API endpoints
+- Create, edit, and delete sensors
+- Search sensors by name or type
+- Sensor overview with pagination
+- Sensor details with chart-based reading history
+- Filter readings by date and time range
+- Add new temperature and humidity readings
+- Responsive UI optimized for mobile, tablet, and desktop
+- Inline messages, modals, toast feedback, and custom confirmation flows
+
+---
+
+## Tech Stack
+
+### Backend
+
+- Django 5
+- Django Ninja
+- Django REST Framework Token Authentication
+
+### Database
+
+- PostgreSQL (Dockerized)
+
+### Frontend
+
+- Vanilla HTML
+- Vanilla CSS
+- Vanilla JavaScript
+- Chart.js
+
+### Testing
+
+- pytest
+
+---
+
+## Project Structure
+
+    backend/               # Django configuration
+    core/                  # Main Django app (models, schemas, API, auth, admin)
+    frontend/              # Static HTML, CSS, and JavaScript
+    sensor_readings_wide.csv
+    docker-compose.yml
+    Makefile
+    README.md
 
 ---
 
@@ -30,153 +63,135 @@ README.md
 
 Create a `.env` file in the root directory:
 
-```bash
-DJANGO_SECRET_KEY="change-me"
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+    DJANGO_SECRET_KEY="change-me"
+    DJANGO_DEBUG=True
+    DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 
-POSTGRES_DB=sensordb
-POSTGRES_USER=sensoruser
-POSTGRES_PASSWORD=sensorpass
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-```
+    POSTGRES_DB=sensordb
+    POSTGRES_USER=sensoruser
+    POSTGRES_PASSWORD=sensorpass
+    POSTGRES_HOST=db
+    POSTGRES_PORT=5432
 
 ---
 
 ### 2. Run locally
 
-```bash
-# Optional cleanup
-docker compose down -v
+    # Optional cleanup
+    docker compose down -v
 
-# Build and start containers
-make up
+    # Build and start containers
+    make up
 
-# Apply migrations
-make migrate
+    # Apply migrations
+    make migrate
 
-# Load demo data
-make seed
-```
+    # Load demo data
+    make seed
 
 ---
 
 ### 3. Start the frontend
 
-```bash
-cd frontend
-python -m http.server 5500
-```
+    cd frontend
+    python -m http.server 5500
 
-Then open:  
-[http://127.0.0.1:5500/index.html](http://127.0.0.1:5500/index.html)
+Then open:
+http://127.0.0.1:5500/index.html
 
-From the start page, you can **register a new account** or **log in**.  
-After logging in, you can navigate to **Sensors** and view each sensor’s details.
+From the start page, you can create an account or sign in.
+After signing in, you can manage sensors and open individual sensor views to inspect readings in more detail.
 
 ---
 
-## API overview
+## API Overview
 
 ### Authentication
 
-```bash
-POST /api/auth/register
-POST /api/auth/login
-```
+    POST /api/auth/register
+    POST /api/auth/token
 
 Both endpoints return a token used for all protected requests:
 
-```
-Authorization: Bearer <token>
-```
-
----
+    Authorization: Bearer <token>
 
 ### Sensors
 
-```bash
-GET    /api/sensors
-POST   /api/sensors
-GET    /api/sensors/{id}
-PUT    /api/sensors/{id}
-DELETE /api/sensors/{id}
-```
+    GET    /api/sensors
+    POST   /api/sensors
+    GET    /api/sensors/{id}
+    PUT    /api/sensors/{id}
+    DELETE /api/sensors/{id}
 
-**Query parameters:**
+Query parameters:
 
 - `q` → search by name or type
-- `page` → specify which page to load (starts from 1)
-
----
+- `page` → specify which page to load
 
 ### Readings
 
-```bash
-GET  /api/sensors/{sensor_id}/readings
-POST /api/sensors/{sensor_id}/readings
-```
+    GET  /api/sensors/{sensor_id}/readings
+    POST /api/sensors/{sensor_id}/readings
 
-**Query parameters:**
+Query parameters:
 
 - `timestamp_from`
 - `timestamp_to`
-- `page`
 
 ---
 
-## Run tests
+## Run Tests
 
-```bash
-make test
-# or:
-docker compose exec web pytest -q
-```
+    make test
+    # or:
+    docker compose exec web pytest -q
+
+Includes tests for:
+
+- Authentication
+- Protected endpoints
+- Sensor creation
+- Reading creation
+- Reading filtering and ordering
 
 ---
 
-## Screenshots
+## Purpose
 
-### Sensors
+I built this project to practice how a fullstack application works end to end, from authentication and API design in the backend to presenting structured sensor data in the frontend.
 
-<img src="./images/sensors.png" width="600" />
-
-Browse, search and manage sensors.
-
-### Sensor Details
-
-<img src="./images/details.png" width="600" />
-
-View sensor data with charts and filter by date.
+I also wanted to work with data that could be filtered, listed, and visualized in a way that feels clear and useful.
 
 ---
 
 ## What I Learned
 
-**Backend & API Design**
+- How to structure API routes with Django Ninja
+- How token-based authentication works in practice
+- How to model relational data for sensors and readings
+- How to filter and return data based on ownership and date range
+- How to connect a vanilla JavaScript frontend to a Django backend
+- How to present readings with charts, filters, and responsive layouts
+- How to improve UX by replacing browser popups with modals, inline messages, and toast feedback
 
-- Built clean and structured API endpoints using Django Ninja
-- Improved separation by working with models, schemas and routers
-- Added input validation and predictable error handling
+---
 
-**Database & Data Management**
+## Screenshots
 
-- Structured relational data for sensors and readings
-- Avoided duplicate entries when loading CSV data
-- Created seed scripts and handled database migrations
+### Landing Page
 
-**Docker Setup**
+<img src="./images/landing.png" alt="Landing page" width="700" />
 
-- Used Docker Compose to run backend and PostgreSQL together
-- Learned how environment variables and volumes affect the setup
+### Sensors Overview
 
-**Frontend Integration**
+<img src="./images/sensors.png" alt="Sensors overview" width="700" />
 
-- Fetched and displayed data from the API using vanilla JavaScript
-- Built simple UI logic that follows the structure of the backend data
+### Sensor Details
 
-**Debugging & Workflow**
+<img src="./images/details.png" alt="Sensor details" width="700" />
 
-- Fixed backend errors, migration issues and seed script problems
-- Tested the full flow: authentication, API logic, database and frontend
+---
+
+## Author
+
+Jennifer – Junior Fullstack Developer
