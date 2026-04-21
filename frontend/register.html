@@ -3,48 +3,210 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
-    <link rel="stylesheet" href="css/index.css" />
-    <link rel="stylesheet" href="css/register.css" />
+    <title>Create account</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/register.css" />
   </head>
   <body>
-    <!-- Register form -->
-    <form id="registerForm">
-      <h1>Sign up</h1>
-      <input id="username" type="text" placeholder="Username" required />
-      <input id="password" type="password" placeholder="Password" required />
-      <button type="submit">Create account</button>
-      <p>Already have an account? <a href="login.html">Log in</a></p>
-    </form>
+    <main class="auth-page">
+      <section class="auth-layout">
+        <div class="auth-copy">
+          <p class="auth-eyebrow">Create account</p>
+          <h1>Set up your sensor dashboard access.</h1>
+
+          <div class="auth-note">
+            <span class="auth-note-label">Before you continue</span>
+            <p>
+              Choose a username and a password you can remember. You’ll use them
+              to sign in and access your sensor overview.
+            </p>
+          </div>
+        </div>
+
+        <form id="registerForm" class="auth-card" novalidate>
+          <div class="auth-card-header">
+            <p class="form-kicker">Account setup</p>
+            <h2>Create your account</h2>
+            <p class="form-text">Fill in the details below to get started.</p>
+          </div>
+
+          <div
+            id="registerMessage"
+            class="form-message"
+            aria-live="polite"
+          ></div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-field">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                required
+                minlength="8"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                id="togglePassword"
+                aria-label="Show password"
+                aria-pressed="false"
+              >
+                Show
+              </button>
+            </div>
+            <p class="field-hint">Use at least 8 characters.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm password</label>
+            <div class="password-field">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autocomplete="new-password"
+                required
+                minlength="8"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                id="toggleConfirmPassword"
+                aria-label="Show password"
+                aria-pressed="false"
+              >
+                Show
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitButton">
+            Create account
+          </button>
+
+          <p class="form-footer">
+            Already have an account?
+            <a href="login.html">Log in</a>
+          </p>
+        </form>
+      </section>
+    </main>
 
     <script>
-      // Handle register form without reloading the page
-      document
-        .getElementById("registerForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+      const registerForm = document.getElementById("registerForm");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirmPassword");
+      const registerMessage = document.getElementById("registerMessage");
+      const submitButton = document.getElementById("submitButton");
+      const togglePasswordButton = document.getElementById("togglePassword");
+      const toggleConfirmPasswordButton = document.getElementById(
+        "toggleConfirmPassword",
+      );
 
-          // Get values from input fields
-          const username = document.getElementById("username").value;
-          const password = document.getElementById("password").value;
+      function showMessage(message, type = "error") {
+        registerMessage.textContent = message;
+        registerMessage.className = `form-message is-visible ${type}`;
+      }
 
-          try {
-            // Send POST request to Django API with username & password in URL
-            const res = await fetch(
-              `http://localhost:8000/api/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
-              { method: "POST" }
-            );
+      function clearMessage() {
+        registerMessage.textContent = "";
+        registerMessage.className = "form-message";
+      }
 
-            // Check if response is successful
-            if (!res.ok) throw new Error("Failed to register");
-
-            alert("Account created! Please log in.");
-            // Redirect to login page
-            location.href = "login.html";
-          } catch (err) {
-            alert("Error: " + err.message);
-          }
+      function setupPasswordToggle(button, input) {
+        button.addEventListener("click", () => {
+          const isHidden = input.type === "password";
+          input.type = isHidden ? "text" : "password";
+          button.textContent = isHidden ? "Hide" : "Show";
+          button.setAttribute("aria-pressed", String(isHidden));
+          button.setAttribute(
+            "aria-label",
+            isHidden ? "Hide password" : "Show password",
+          );
         });
+      }
+
+      setupPasswordToggle(togglePasswordButton, passwordInput);
+      setupPasswordToggle(toggleConfirmPasswordButton, confirmPasswordInput);
+
+      registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        clearMessage();
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (!username || !password || !confirmPassword) {
+          showMessage("Please fill in all fields.");
+          return;
+        }
+
+        if (password.length < 8) {
+          showMessage("Password must be at least 8 characters long.");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showMessage("Passwords do not match.");
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating account...";
+
+        try {
+          const res = await fetch(
+            `http://localhost:8000/api/auth/register?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+            {
+              method: "POST",
+            },
+          );
+
+          if (!res.ok) {
+            let errorMessage = "Failed to create account.";
+            try {
+              const text = await res.text();
+              if (text) errorMessage = text;
+            } catch (_) {}
+            throw new Error(errorMessage);
+          }
+
+          showMessage("Account created. Redirecting to sign in...", "success");
+
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 700);
+        } catch (err) {
+          showMessage(err.message || "Something went wrong. Please try again.");
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = "Create account";
+        }
+      });
     </script>
   </body>
 </html>
