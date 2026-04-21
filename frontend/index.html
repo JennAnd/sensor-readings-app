@@ -3,20 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sensor & Sensor readings app</title>
+    <title>Sensor Monitoring Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="./css/index.css" />
   </head>
   <body>
-    <div class="welcome-card">
-      <h1>Sensor & Sensor Readings App</h1>
-      <p>
-        Welcome to the Energy Sensor platform — a simple web app that lets you
-        register, log in and view detailed sensor readings in real time.
-      </p>
-      <p>
-        <a href="login.html" class="btn">Log in</a>
-        <a href="register.html" class="btn secondary">Create account</a>
-      </p>
-    </div>
+    <main class="landing-page">
+      <section class="landing-layout">
+        <div class="landing-copy">
+          <p class="eyebrow">Sensor Monitoring Dashboard</p>
+
+          <h1>Monitor sensor activity with a clearer overview.</h1>
+
+          <p class="lead">
+            Manage sensors, add readings, and explore temperature and humidity
+            data over time.
+          </p>
+
+          <div class="actions">
+            <a href="login.html" class="btn btn-primary">Sign in</a>
+            <a href="register.html" class="btn btn-secondary">Create account</a>
+          </div>
+        </div>
+
+        <div class="landing-side">
+          <div class="info-block purpose-block">
+            <span class="label">Purpose</span>
+            <p>
+              Give users a simple way to manage sensors and review their
+              readings in one place.
+            </p>
+          </div>
+
+          <div class="info-row">
+            <div class="info-mini">
+              <span class="label">Sensors</span>
+              <p>Add, edit, and organize connected devices.</p>
+            </div>
+
+            <div class="info-mini">
+              <span class="label">Readings</span>
+              <p>Track temperature and humidity over time.</p>
+            </div>
+          </div>
+
+          <div class="info-block subtle">
+            <span class="label">Flow</span>
+            <p>
+              Sign in, manage your sensors, open a sensor, and inspect readings
+              through filtering and chart-based views.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
   </body>
 </html>
