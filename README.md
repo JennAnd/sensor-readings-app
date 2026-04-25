@@ -1,4 +1,4 @@
-# Sensor Readings App
+# Sensor Monitoring Platform
 
 A fullstack web application for managing sensors and their readings, with filtering, chart-based visualization, and responsive views for mobile, tablet, and desktop.
 
@@ -178,13 +178,13 @@ I also wanted to work with data that could be filtered, listed, and visualized i
 
 ## Screenshots
 
-### Landing Page
+### Sensor Monitoring Platform
 
-<img src="./images/landing.png" alt="Landing page" width="700" />
+<img src="./images/platform.png" alt="Sensor Monitoring Platform" width="700" />
 
-### Sensors Overview
+### Sensor Overview
 
-<img src="./images/sensors.png" alt="Sensors overview" width="700" />
+<img src="./images/sensors.png" alt="Sensor overview" width="700" />
 
 ### Sensor Details
 
