@@ -95,7 +95,7 @@ def update_sensor(request, sensor_id: int, data: SensorCreate):
     if not name or not type_:
         return Response({"detail": "name and type are required"}, status=400)
 
-    sensor.name = data.name
+    sensor.name = name
     sensor.type = type_
     sensor.save()
     return sensor 
